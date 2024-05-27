@@ -10,7 +10,7 @@ after all packages are installed, you must edit some file on:
         - LocalWebCache.js
 
 In LocalWebCache.js
-```
+```javascript
 async persist(indexHtml) {
         // extract version from index (e.g. manifest-2.2206.9.json -> 2.2206.9)
         const version = indexHtml.match(/manifest-([\d\\.]+)\.json/)[1];
@@ -21,7 +21,7 @@ async persist(indexHtml) {
     }
 ```
 A workaround provided by another user consists of manually placing the version in the code, like this:
-```
+```javascript
     async persist(indexHtml) {
         // extract version from index (e.g. manifest-2.2206.9.json -> 2.2206.9)
         let version;
