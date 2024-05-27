@@ -17,8 +17,8 @@ const io = require("socket.io")(server, {
   allowEIO3: true,
 });
 const nomorhpdefault = require("./model/nomorHP");
-const Category = require("./model/category");
-const Reply = require("./model/reply");
+const categoryRoutes = require("./routes/categoriesRoute");
+const repliesRoutes = require("./routes/repliesRoute");
 
 let qrString;
 let client;
@@ -65,6 +65,9 @@ const delay = 4000;
 
 app.use(cors());
 app.use(express.json());
+
+app.use("/api/categories", categoryRoutes);
+app.use("/api/replies", repliesRoutes);
 
 const createWhatsappSession = (nomorhp, socket) => {
   console.log("bikin client baru whatsapp session");
