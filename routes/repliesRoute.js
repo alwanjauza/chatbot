@@ -1,8 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const moment = require("moment"); // Import Moment.js library
+const moment = require("moment");
 const Reply = require("../model/reply");
-const Category = require("../model/category");
 
 // Create a new reply
 router.post("/", async (req, res) => {
@@ -23,14 +22,26 @@ router.post("/", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     const replies = await Reply.find().populate("categoryId");
-    const response = replies.map((reply) => ({
-      _id: reply._id,
-      categoryName: reply.categoryId.name, // assuming 'name' is the field in Category model
-      message: reply.message,
-      reply: reply.reply,
-      createdAt: moment(reply.createdAt).format("YYYY-MM-DD | HH:mm:ss"), // Format createdAt timestamp
-      updatedAt: moment(reply.updatedAt).format("YYYY-MM-DD | HH:mm:ss"), // Format updatedAt timestamp
-    }));
+    const response = replies.map((reply) => {
+      if (!reply.categoryId) {
+        return {
+          _id: reply._id,
+          categoryName: "Unknown Category", // Fallback for missing category
+          message: reply.message,
+          reply: reply.reply,
+          createdAt: moment(reply.createdAt).format("YYYY-MM-DD | HH:mm:ss"),
+          updatedAt: moment(reply.updatedAt).format("YYYY-MM-DD | HH:mm:ss"),
+        };
+      }
+      return {
+        _id: reply._id,
+        categoryName: reply.categoryId.name, // assuming 'name' is the field in Category model
+        message: reply.message,
+        reply: reply.reply,
+        createdAt: moment(reply.createdAt).format("YYYY-MM-DD | HH:mm:ss"),
+        updatedAt: moment(reply.updatedAt).format("YYYY-MM-DD | HH:mm:ss"),
+      };
+    });
     res.status(200).json(response);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -47,14 +58,26 @@ router.get("/:categoryId", async (req, res) => {
       return res
         .status(404)
         .json({ message: "No replies found for this category" });
-    const response = replies.map((reply) => ({
-      _id: reply._id,
-      categoryName: reply.categoryId.name, // assuming 'name' is the field in Category model
-      message: reply.message,
-      reply: reply.reply,
-      createdAt: moment(reply.createdAt).format("YYYY-MM-DD | HH:mm:ss"), // Format createdAt timestamp
-      updatedAt: moment(reply.updatedAt).format("YYYY-MM-DD | HH:mm:ss"), // Format updatedAt timestamp
-    }));
+    const response = replies.map((reply) => {
+      if (!reply.categoryId) {
+        return {
+          _id: reply._id,
+          categoryName: "Unknown Category", // Fallback for missing category
+          message: reply.message,
+          reply: reply.reply,
+          createdAt: moment(reply.createdAt).format("YYYY-MM-DD | HH:mm:ss"),
+          updatedAt: moment(reply.updatedAt).format("YYYY-MM-DD | HH:mm:ss"),
+        };
+      }
+      return {
+        _id: reply._id,
+        categoryName: reply.categoryId.name, // assuming 'name' is the field in Category model
+        message: reply.message,
+        reply: reply.reply,
+        createdAt: moment(reply.createdAt).format("YYYY-MM-DD | HH:mm:ss"),
+        updatedAt: moment(reply.updatedAt).format("YYYY-MM-DD | HH:mm:ss"),
+      };
+    });
     res.status(200).json(response);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -66,13 +89,23 @@ router.get("/reply/:id", async (req, res) => {
   try {
     const reply = await Reply.findById(req.params.id).populate("categoryId");
     if (!reply) return res.status(404).json({ message: "Reply not found" });
+    if (!reply.categoryId) {
+      return res.status(200).json({
+        _id: reply._id,
+        categoryName: "Unknown Category", // Fallback for missing category
+        message: reply.message,
+        reply: reply.reply,
+        createdAt: moment(reply.createdAt).format("YYYY-MM-DD | HH:mm:ss"),
+        updatedAt: moment(reply.updatedAt).format("YYYY-MM-DD | HH:mm:ss"),
+      });
+    }
     res.status(200).json({
       _id: reply._id,
       categoryName: reply.categoryId.name, // assuming 'name' is the field in Category model
       message: reply.message,
       reply: reply.reply,
-      createdAt: moment(reply.createdAt).format("YYYY-MM-DD | HH:mm:ss"), // Format createdAt timestamp
-      updatedAt: moment(reply.updatedAt).format("YYYY-MM-DD | HH:mm:ss"), // Format updatedAt timestamp
+      createdAt: moment(reply.createdAt).format("YYYY-MM-DD | HH:mm:ss"),
+      updatedAt: moment(reply.updatedAt).format("YYYY-MM-DD | HH:mm:ss"),
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -92,13 +125,23 @@ router.put("/:id", async (req, res) => {
       { new: true }
     ).populate("categoryId");
     if (!reply) return res.status(404).json({ message: "Reply not found" });
+    if (!reply.categoryId) {
+      return res.status(200).json({
+        _id: reply._id,
+        categoryName: "Unknown Category", // Fallback for missing category
+        message: reply.message,
+        reply: reply.reply,
+        createdAt: moment(reply.createdAt).format("YYYY-MM-DD | HH:mm:ss"),
+        updatedAt: moment(reply.updatedAt).format("YYYY-MM-DD | HH:mm:ss"),
+      });
+    }
     res.status(200).json({
       _id: reply._id,
       categoryName: reply.categoryId.name, // assuming 'name' is the field in Category model
       message: reply.message,
       reply: reply.reply,
-      createdAt: moment(reply.createdAt).format("YYYY-MM-DD | HH:mm:ss"), // Format createdAt timestamp
-      updatedAt: moment(reply.updatedAt).format("YYYY-MM-DD | HH:mm:ss"), // Format updatedAt timestamp
+      createdAt: moment(reply.createdAt).format("YYYY-MM-DD | HH:mm:ss"),
+      updatedAt: moment(reply.updatedAt).format("YYYY-MM-DD | HH:mm:ss"),
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -114,13 +157,23 @@ router.patch("/:id", async (req, res) => {
       { new: true }
     ).populate("categoryId");
     if (!reply) return res.status(404).json({ message: "Reply not found" });
+    if (!reply.categoryId) {
+      return res.status(200).json({
+        _id: reply._id,
+        categoryName: "Unknown Category", // Fallback for missing category
+        message: reply.message,
+        reply: reply.reply,
+        createdAt: moment(reply.createdAt).format("YYYY-MM-DD | HH:mm:ss"),
+        updatedAt: moment(reply.updatedAt).format("YYYY-MM-DD | HH:mm:ss"),
+      });
+    }
     res.status(200).json({
       _id: reply._id,
       categoryName: reply.categoryId.name, // assuming 'name' is the field in Category model
       message: reply.message,
       reply: reply.reply,
-      createdAt: moment(reply.createdAt).format("YYYY-MM-DD | HH:mm:ss"), // Format createdAt timestamp
-      updatedAt: moment(reply.updatedAt).format("YYYY-MM-DD | HH:mm:ss"), // Format updatedAt timestamp
+      createdAt: moment(reply.createdAt).format("YYYY-MM-DD | HH:mm:ss"),
+      updatedAt: moment(reply.updatedAt).format("YYYY-MM-DD | HH:mm:ss"),
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
